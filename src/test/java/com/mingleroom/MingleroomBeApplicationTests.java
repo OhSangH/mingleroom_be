@@ -1,4 +1,4 @@
-package com.example.mingleroom_be;
+package com.mingleroom;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

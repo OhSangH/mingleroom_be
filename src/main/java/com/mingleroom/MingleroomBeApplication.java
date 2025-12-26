@@ -1,4 +1,4 @@
-package com.example.mingleroom_be;
+package com.mingleroom;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
