@@ -2,7 +2,7 @@ package com.mingleroom.domain.actionitems.entity;
 
 
 import com.mingleroom.common.global.BaseTimeEntity;
-import com.mingleroom.domain.enums.ActionStatus;
+import com.mingleroom.common.enums.ActionStatus;
 import com.mingleroom.domain.room.rooms.entity.Room;
 import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;

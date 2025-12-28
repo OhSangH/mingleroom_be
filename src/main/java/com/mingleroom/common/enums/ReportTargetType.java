@@ -1,3 +1,3 @@
-package com.mingleroom.domain.enums;
+package com.mingleroom.common.enums;
 
 public enum ReportTargetType { USER, ROOM, MESSAGE }

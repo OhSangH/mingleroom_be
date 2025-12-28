@@ -2,8 +2,8 @@ package com.mingleroom.domain.reports.entity;
 
 
 import com.mingleroom.common.global.BaseCreatedEntity;
-import com.mingleroom.domain.enums.ReportStatus;
-import com.mingleroom.domain.enums.ReportTargetType;
+import com.mingleroom.common.enums.ReportStatus;
+import com.mingleroom.common.enums.ReportTargetType;
 import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

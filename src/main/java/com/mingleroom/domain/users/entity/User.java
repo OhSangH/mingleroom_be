@@ -1,7 +1,7 @@
 package com.mingleroom.domain.users.entity;
 
 import com.mingleroom.common.global.BaseTimeEntity;
-import com.mingleroom.domain.enums.RoleGlobal;
+import com.mingleroom.common.enums.RoleGlobal;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

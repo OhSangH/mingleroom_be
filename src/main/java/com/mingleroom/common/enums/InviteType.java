@@ -1,3 +1,3 @@
-package com.mingleroom.domain.enums;
+package com.mingleroom.common.enums;
 
 public enum InviteType { LINK, EMAIL }

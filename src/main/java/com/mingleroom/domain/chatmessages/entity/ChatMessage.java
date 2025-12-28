@@ -2,7 +2,7 @@ package com.mingleroom.domain.chatmessages.entity;
 
 import com.mingleroom.common.global.BaseCreatedEntity;
 import com.mingleroom.domain.attachments.entity.Attachment;
-import com.mingleroom.domain.enums.MessageType;
+import com.mingleroom.common.enums.MessageType;
 import com.mingleroom.domain.room.rooms.entity.Room;
 import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;

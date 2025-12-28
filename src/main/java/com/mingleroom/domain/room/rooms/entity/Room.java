@@ -2,8 +2,8 @@ package com.mingleroom.domain.room.rooms.entity;
 
 
 import com.mingleroom.common.global.BaseTimeEntity;
-import com.mingleroom.domain.enums.InvitePolicy;
-import com.mingleroom.domain.enums.RoomVisibility;
+import com.mingleroom.common.enums.InvitePolicy;
+import com.mingleroom.common.enums.RoomVisibility;
 import com.mingleroom.domain.users.entity.User;
 import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import jakarta.persistence.*;

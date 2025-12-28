@@ -2,7 +2,7 @@ package com.mingleroom.domain.room.events.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mingleroom.common.global.BaseCreatedEntity;
-import com.mingleroom.domain.enums.RoomEventType;
+import com.mingleroom.common.enums.RoomEventType;
 import com.mingleroom.domain.room.rooms.entity.Room;
 import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;

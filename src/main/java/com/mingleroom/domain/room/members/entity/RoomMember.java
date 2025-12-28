@@ -1,6 +1,6 @@
 package com.mingleroom.domain.room.members.entity;
 
-import com.mingleroom.domain.enums.RoomRole;
+import com.mingleroom.common.enums.RoomRole;
 import com.mingleroom.domain.room.rooms.entity.Room;
 import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;

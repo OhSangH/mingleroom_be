@@ -1,7 +1,7 @@
 package com.mingleroom.domain.attachments.entity;
 
 import com.mingleroom.common.global.BaseCreatedEntity;
-import com.mingleroom.domain.enums.StorageProvider;
+import com.mingleroom.common.enums.StorageProvider;
 import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
