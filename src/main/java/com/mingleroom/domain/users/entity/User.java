@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,8 +40,8 @@ public class User extends BaseTimeEntity {
     private boolean banned;
 
     @Column(name = "password_updated_at", nullable = false)
-    private Instant passwordUpdatedAt;
+    private OffsetDateTime passwordUpdatedAt;
 
     @Column(name = "last_login_at")
-    private Instant lastLoginAt;
+    private OffsetDateTime lastLoginAt;
 }

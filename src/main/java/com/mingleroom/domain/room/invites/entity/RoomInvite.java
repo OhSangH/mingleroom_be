@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -49,7 +49,7 @@ public class RoomInvite extends BaseCreatedEntity {
     private String inviteEmail;
 
     @Column(name = "expires_at")
-    private Instant expiresAt;
+    private OffsetDateTime expiresAt;
 
     @Column(name = "max_uses", nullable = false)
     private Integer maxUses;

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,5 +38,5 @@ public class Poll extends BaseCreatedEntity {
     private boolean anonymous;
 
     @Column(name = "closed_at")
-    private Instant closedAt;
+    private OffsetDateTime closedAt;
 }

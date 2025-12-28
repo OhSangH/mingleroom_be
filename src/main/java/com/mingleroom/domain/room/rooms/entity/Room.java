@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -52,5 +52,5 @@ public class Room extends BaseTimeEntity {
     private boolean locked;
 
     @Column(name = "ended_at")
-    private Instant endedAt;
+    private OffsetDateTime endedAt;
 }

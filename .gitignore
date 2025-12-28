@@ -40,3 +40,5 @@ out/
 ### properties ###
 *.properties
 !gradle-wrapper.properties
+application-dev.yml
+application.yml

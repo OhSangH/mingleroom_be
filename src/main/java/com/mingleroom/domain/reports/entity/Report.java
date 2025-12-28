@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,5 +51,5 @@ public class Report extends BaseCreatedEntity {
     private ReportStatus status;
 
     @Column(name = "resolved_at")
-    private Instant resolvedAt;
+    private OffsetDateTime resolvedAt;
 }

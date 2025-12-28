@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.LocalDate;
 
 @Getter
@@ -53,5 +53,5 @@ public class ActionItem extends BaseTimeEntity {
     private ActionStatus status;
 
     @Column(name = "done_at")
-    private Instant doneAt;
+    private OffsetDateTime doneAt;
 }

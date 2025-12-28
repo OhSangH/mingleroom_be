@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,5 +37,5 @@ public class WorkspaceMember {
     private WorkspaceRole roleInWorkspace;
 
     @Column(name = "joined_at", nullable = false)
-    private Instant joinedAt;
+    private OffsetDateTime joinedAt;
 }
