@@ -18,8 +18,8 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     // 1) 우리가 던지는 커스텀 예외
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorRes> handleBusiness(BusinessException e, HttpServletRequest req) {
+    @ExceptionHandler(GlobalException.class)
+    public ResponseEntity<ErrorRes> handleBusiness(GlobalException e, HttpServletRequest req) {
         var status = e.getErrorCode().status();
         var body = ErrorRes.of(
                 status.value(),

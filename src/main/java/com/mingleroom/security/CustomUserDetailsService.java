@@ -1,6 +1,7 @@
 package com.mingleroom.security;
 
 import com.mingleroom.domain.users.repository.UserRepository;
+import com.mingleroom.security.config.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
