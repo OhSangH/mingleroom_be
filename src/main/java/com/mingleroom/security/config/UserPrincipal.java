@@ -2,7 +2,6 @@ package com.mingleroom.security.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mingleroom.domain.users.entity.User;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
