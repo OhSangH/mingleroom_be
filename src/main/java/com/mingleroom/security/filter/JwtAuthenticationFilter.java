@@ -1,10 +1,9 @@
 package com.mingleroom.security.filter;
 
-import com.mingleroom.common.enums.ErrorCode;
-import com.mingleroom.exeption.GlobalException;
 import com.mingleroom.security.CustomUserDetailsService;
 import com.mingleroom.security.jwt.JwtProvider;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +29,6 @@ public class JwtAuthenticationFilter extends GenericFilter {
         HttpServletRequest req = (HttpServletRequest) request;
         String jwt = req.getHeader("Authorization");
         log.info(req.getRequestURI());
-
         if (jwt != null) {
             jwt = jwt.replace("Bearer ", "").trim();
             try {
@@ -41,7 +39,14 @@ public class JwtAuthenticationFilter extends GenericFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            }catch (JwtException e){
+            }catch (ExpiredJwtException e) {
+                request.setAttribute("AUTH_ERROR_CODE", "TOKEN_EXPIRED");
+                request.setAttribute("AUTH_ERROR_MESSAGE", "액세스 토큰이 만료되었습니다.");
+                SecurityContextHolder.clearContext();
+            }
+            catch (JwtException e) {
+                request.setAttribute("AUTH_ERROR_CODE", "TOKEN_INVALID");
+                request.setAttribute("AUTH_ERROR_MESSAGE", "유효하지 않은 토큰입니다.");
                 SecurityContextHolder.clearContext();
             }
         }

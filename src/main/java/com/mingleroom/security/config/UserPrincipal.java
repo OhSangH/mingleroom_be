@@ -71,8 +71,23 @@ public class UserPrincipal implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.getRole()));
     }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
-    @Override public boolean isAccountNonLocked() { return !this.getBanned(); }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !this.getBanned();
+    }
 }

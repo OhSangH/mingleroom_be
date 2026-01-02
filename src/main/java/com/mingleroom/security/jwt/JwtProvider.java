@@ -18,12 +18,12 @@ public class JwtProvider {
     private final Key key;
     private final long expirationMs;
 
-    public  JwtProvider(@Value("${app.jwt.secret}") String secret, @Value("${app.jwt.expirationMs}") long expirationMs) {
+    public  JwtProvider(@Value("${app.jwt.secret}") String secret, @Value("${app.jwt.accessExpirationMs}") long expirationMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }
 
-    public String createToken(Long userId, String email, String role){
+    public String createAccessToken(Long userId, String email, String role){
         var now = new Date();
         var expiryDate = new Date(now.getTime() + expirationMs);
 
