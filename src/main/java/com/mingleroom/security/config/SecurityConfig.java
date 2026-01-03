@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(deniedHandler)
                 )
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/ws-stomp/**").permitAll()
                         .requestMatchers("/auth/join","auth/login","auth/refresh","auth/logout").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
