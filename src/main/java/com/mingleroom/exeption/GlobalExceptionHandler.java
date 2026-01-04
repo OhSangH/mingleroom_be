@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
 
     // 1) 우리가 던지는 커스텀 예외
     @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<ErrorRes> handleBusiness(GlobalException e, HttpServletRequest req) {
+    public ResponseEntity<ErrorRes> handleGlobal(GlobalException e, HttpServletRequest req) {
         var status = e.getErrorCode().status();
         var body = ErrorRes.of(
                 status.value(),
