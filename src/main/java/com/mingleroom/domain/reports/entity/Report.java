@@ -34,7 +34,7 @@ public class Report extends BaseCreatedEntity {
     private User reporter;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "target_type", nullable = false, length = 20)
+    @Column(name = "target_type", nullable = false, columnDefinition = "report_target_type_t")
     private ReportTargetType targetType;
 
     @Column(name = "target_id", nullable = false)
@@ -47,7 +47,7 @@ public class Report extends BaseCreatedEntity {
     private String detail;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, columnDefinition = "report_status_t")
     private ReportStatus status;
 
     @Column(name = "resolved_at")

@@ -39,7 +39,7 @@ public class Attachment extends BaseCreatedEntity {
     private Long fileSize;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "storage_provider", nullable = false, length = 20)
+    @Column(name = "storage_provider", nullable = false, columnDefinition = "storage_provider_t")
     private StorageProvider storageProvider;
 
     @Column(name = "storage_key", nullable = false, length = 512)

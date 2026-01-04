@@ -49,7 +49,7 @@ public class ActionItem extends BaseTimeEntity {
     private LocalDate dueDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, columnDefinition = "action_status_t")
     private ActionStatus status;
 
     @Column(name = "done_at")

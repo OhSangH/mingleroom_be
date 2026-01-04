@@ -33,7 +33,7 @@ public class WorkspaceMember {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role_in_workspace", nullable = false, length = 20)
+    @Column(name = "role_in_workspace", nullable = false, columnDefinition = "workspace_role_t")
     private WorkspaceRole roleInWorkspace;
 
     @Column(name = "joined_at", nullable = false)

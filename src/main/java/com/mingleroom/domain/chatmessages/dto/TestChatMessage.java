@@ -1,7 +1,9 @@
 package com.mingleroom.domain.chatmessages.dto;
 
-public record TestChatMessage(String roomId,
+import com.mingleroom.common.enums.MessageType;
+
+public record TestChatMessage(Long roomId,
                               String sender,
                               String message,
-                              String type) {
+                              MessageType type) {
 }

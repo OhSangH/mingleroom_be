@@ -32,7 +32,7 @@ public class RoomMember {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role_in_room", nullable = false, length = 20)
+    @Column(name = "role_in_room", nullable = false, columnDefinition = "room_role_t")
     private RoomRole roleInRoom;
 
     @Column(name = "joined_at", nullable = false)

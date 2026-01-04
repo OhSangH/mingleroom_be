@@ -12,9 +12,9 @@ public class ChatWsController {
     @MessageMapping("/chat/room/{roomId}")
     @SendTo("/sub/chat/room/{roomId}")
     public TestChatMessage send(
-            @DestinationVariable String roomId,
+            @DestinationVariable Long roomId,
             TestChatMessage message
     ){
-        return new TestChatMessage(roomId, message.sender(), message.message(), message.type());
+        return new TestChatMessage  (roomId, message.sender(), message.message(), message.type());
     }
 }
