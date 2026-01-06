@@ -9,6 +9,8 @@ import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -38,6 +40,7 @@ public class Room extends BaseTimeEntity {
     private String title;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false, columnDefinition = "room_visibility_t")
     private RoomVisibility visibility;
 
@@ -45,6 +48,7 @@ public class Room extends BaseTimeEntity {
     private String roomPasswordHash;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "invite_policy", nullable = false, columnDefinition = "invite_policy_t")
     private InvitePolicy invitePolicy;
 

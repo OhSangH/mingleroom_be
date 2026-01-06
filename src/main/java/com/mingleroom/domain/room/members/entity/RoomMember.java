@@ -6,6 +6,8 @@ import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -32,6 +34,7 @@ public class RoomMember {
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "role_in_room", nullable = false, columnDefinition = "room_role_t")
     private RoomRole roleInRoom;
 

@@ -8,6 +8,8 @@ import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -39,6 +41,7 @@ public class ChatMessage extends BaseCreatedEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "message_type", nullable = false, columnDefinition = "message_type_t")
     private MessageType messageType;
 

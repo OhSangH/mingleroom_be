@@ -6,6 +6,8 @@ import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,6 +41,7 @@ public class Attachment extends BaseCreatedEntity {
     private Long fileSize;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "storage_provider", nullable = false, columnDefinition = "storage_provider_t")
     private StorageProvider storageProvider;
 

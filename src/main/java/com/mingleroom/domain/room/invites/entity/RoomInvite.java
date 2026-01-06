@@ -9,6 +9,8 @@ import com.mingleroom.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -42,6 +44,7 @@ public class RoomInvite extends BaseCreatedEntity {
     private String token;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "invite_type", nullable = false, columnDefinition = "invite_type_t")
     private InviteType inviteType;
 
@@ -58,6 +61,7 @@ public class RoomInvite extends BaseCreatedEntity {
     private Integer usedCount;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "default_role_in_room", nullable = false, columnDefinition = "room_role_t")
     private RoomRole defaultRoleInRoom;
 

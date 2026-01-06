@@ -36,6 +36,7 @@ public class RoomEvent extends BaseCreatedEntity {
     private User actor;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "event_type", nullable = false, columnDefinition = "room_event_type_t")
     private RoomEventType eventType;
 

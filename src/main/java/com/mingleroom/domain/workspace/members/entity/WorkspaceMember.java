@@ -7,6 +7,8 @@ import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -33,6 +35,7 @@ public class WorkspaceMember {
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "role_in_workspace", nullable = false, columnDefinition = "workspace_role_t")
     private WorkspaceRole roleInWorkspace;
 

@@ -15,6 +15,6 @@ public class ChatWsController {
             @DestinationVariable Long roomId,
             TestChatMessage message
     ){
-        return new TestChatMessage  (roomId, message.sender(), message.message(), message.type());
+        return new TestChatMessage  (roomId, message.sender(), message.message(), message.type(), message.eventType());
     }
 }
