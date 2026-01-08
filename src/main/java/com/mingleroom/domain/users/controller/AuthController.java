@@ -31,11 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenRes> login(@Valid @RequestBody LoginReq req) {
-        var result = authService.login(req); // accessToken + refreshCookie
-        return ResponseEntity.ok()
-                .header("Set-Cookie", result.refreshCookie())
-                .body(new TokenRes(result.accessToken()));
+    public ResponseEntity<TokenRes> login(@Valid @RequestBody LoginReq req, HttpServletResponse res) {
+        var result = authService.login(req, res);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/principal")
@@ -45,8 +43,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenRes> refresh(HttpServletRequest req, HttpServletResponse res) {
-        return ResponseEntity.ok(authService.refresh(req, res));
+    public ResponseEntity<TokenRes> refresh(@AuthenticationPrincipal UserPrincipal user, HttpServletRequest req, HttpServletResponse res) {
+        return ResponseEntity.ok(authService.refresh(user ,req, res));
     }
 
     @PostMapping("/logout")

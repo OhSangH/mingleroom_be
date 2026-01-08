@@ -6,11 +6,11 @@ import com.mingleroom.domain.refreshtoken.entity.RefreshToken;
 import com.mingleroom.domain.refreshtoken.repository.RefreshTokenRepository;
 import com.mingleroom.domain.users.dto.JoinReq;
 import com.mingleroom.domain.users.dto.LoginReq;
-import com.mingleroom.domain.users.dto.LoginResult;
 import com.mingleroom.domain.users.dto.TokenRes;
 import com.mingleroom.domain.users.entity.User;
 import com.mingleroom.domain.users.repository.UserRepository;
 import com.mingleroom.exeption.GlobalException;
+import com.mingleroom.security.config.UserPrincipal;
 import com.mingleroom.security.jwt.JwtProvider;
 import com.mingleroom.security.jwt.TokenUtils;
 import jakarta.servlet.http.Cookie;
@@ -18,14 +18,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -60,7 +64,7 @@ public class AuthService {
         );
     }
 
-    public LoginResult login(LoginReq loginReq){
+    public TokenRes login(LoginReq loginReq, HttpServletResponse res){
         var user = userRepository.findByEmail(loginReq.email()).orElseThrow(() -> new GlobalException(ErrorCode.BAD_REQUEST, "이메일을 확인해주세요."));
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPasswordHash())){
@@ -69,18 +73,9 @@ public class AuthService {
 
         String token = jwtProvider.createAccessToken(user.getId(), user.getEmail(), user.getRoleGlobal().name());
 
-        String refreshRaw = TokenUtils.newRefreshToken();
-        String refreshHash = TokenUtils.sha256Hex(refreshRaw);
+        createRefreshToken(res, user);
 
-        RefreshToken rt = new RefreshToken();
-        rt.setUserId(user.getId());
-        rt.setTokenHash(refreshHash);
-        rt.setExpiresAt(OffsetDateTime.now().plusSeconds(refreshExpirationMs / 1000));
-        refreshTokenRepository.save(rt);
-
-        // 3) refresh는 HttpOnly 쿠키로
-
-        return new LoginResult(token , refreshRaw);
+        return new TokenRes(token);
     }
 
     private void setRefreshCookie(HttpServletResponse res, String refreshRaw) {
@@ -91,7 +86,7 @@ public class AuthService {
                 .path("/auth")
                 .maxAge(Duration.ofDays(14))
                 .build();
-        res.addHeader("Set-Cookie", cookie.toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     @Transactional
@@ -106,7 +101,7 @@ public class AuthService {
 
 
     @Transactional
-    public TokenRes refresh(HttpServletRequest req, HttpServletResponse res) {
+    public TokenRes refresh( @AuthenticationPrincipal UserPrincipal principal ,HttpServletRequest req, HttpServletResponse res) {
         String refreshRaw = extractRefreshCookie(req);
         if (refreshRaw == null || refreshRaw.isBlank()) {
             throw new GlobalException(ErrorCode.UNAUTHORIZED, "Refresh token이 없습니다.");
@@ -124,21 +119,16 @@ public class AuthService {
         User user = userRepository.findById(saved.getUserId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.UNAUTHORIZED, "User not found"));
 
+        if(!user.getEmail().equals(principal.getEmail())){
+            clearRefreshCookie(res);
+            throw new GlobalException(ErrorCode.FORBIDDEN, "Refresh 토큰과 User가 맞지 않습니다.");
+        }
+
         // ✅ rotation: 기존 refresh 폐기
         saved.setRevokedAt(OffsetDateTime.now());
 
         // ✅ 새 refresh 발급/저장
-        String newRefreshRaw = TokenUtils.newRefreshToken();
-        String newRefreshHash = TokenUtils.sha256Hex(newRefreshRaw);
-
-        RefreshToken newRt = new RefreshToken();
-        newRt.setUserId(user.getId());
-        newRt.setTokenHash(newRefreshHash);
-        newRt.setExpiresAt(OffsetDateTime.now().plusSeconds(refreshExpirationMs / 1000));
-        refreshTokenRepository.save(newRt);
-
-        // 쿠키 갱신
-        setRefreshCookie(res, newRefreshRaw);
+        createRefreshToken(res, user);
 
         // 새 access 발급
         String newAccess = jwtProvider.createAccessToken(user.getId(), user.getEmail(), user.getRoleGlobal().name());
@@ -161,6 +151,20 @@ public class AuthService {
                 .path("/auth")     // login 때 설정한 path랑 반드시 동일
                 .maxAge(Duration.ZERO)
                 .build();
-        res.addHeader("Set-Cookie", cookie.toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private void createRefreshToken(HttpServletResponse res, User user) {
+        String newRefreshRaw = TokenUtils.newRefreshToken();
+        String newRefreshHash = TokenUtils.sha256Hex(newRefreshRaw);
+
+        RefreshToken newRt = new RefreshToken();
+        newRt.setUserId(user.getId());
+        newRt.setTokenHash(newRefreshHash);
+        newRt.setExpiresAt(OffsetDateTime.now().plusSeconds(refreshExpirationMs / 1000));
+        refreshTokenRepository.save(newRt);
+
+        // 쿠키 갱신
+        setRefreshCookie(res, newRefreshRaw);
     }
 }
