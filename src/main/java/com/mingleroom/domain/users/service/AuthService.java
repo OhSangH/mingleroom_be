@@ -101,7 +101,7 @@ public class AuthService {
 
 
     @Transactional
-    public TokenRes refresh( @AuthenticationPrincipal UserPrincipal principal ,HttpServletRequest req, HttpServletResponse res) {
+    public TokenRes refresh(HttpServletRequest req, HttpServletResponse res) {
         String refreshRaw = extractRefreshCookie(req);
         if (refreshRaw == null || refreshRaw.isBlank()) {
             throw new GlobalException(ErrorCode.UNAUTHORIZED, "Refresh token이 없습니다.");
@@ -119,10 +119,7 @@ public class AuthService {
         User user = userRepository.findById(saved.getUserId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.UNAUTHORIZED, "User not found"));
 
-        if(!user.getEmail().equals(principal.getEmail())){
-            clearRefreshCookie(res);
-            throw new GlobalException(ErrorCode.FORBIDDEN, "Refresh 토큰과 User가 맞지 않습니다.");
-        }
+
 
         // ✅ rotation: 기존 refresh 폐기
         saved.setRevokedAt(OffsetDateTime.now());
