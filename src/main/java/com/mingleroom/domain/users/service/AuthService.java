@@ -10,7 +10,6 @@ import com.mingleroom.domain.users.dto.TokenRes;
 import com.mingleroom.domain.users.entity.User;
 import com.mingleroom.domain.users.repository.UserRepository;
 import com.mingleroom.exeption.GlobalException;
-import com.mingleroom.security.config.UserPrincipal;
 import com.mingleroom.security.jwt.JwtProvider;
 import com.mingleroom.security.jwt.TokenUtils;
 import jakarta.servlet.http.Cookie;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +72,9 @@ public class AuthService {
         String token = jwtProvider.createAccessToken(user.getId(), user.getEmail(), user.getRoleGlobal().name());
 
         createRefreshToken(res, user);
+
+        user.setLastLoginAt(OffsetDateTime.now());
+        userRepository.save(user);
 
         return new TokenRes(token);
     }

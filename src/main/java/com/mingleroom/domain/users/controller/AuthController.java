@@ -2,6 +2,7 @@ package com.mingleroom.domain.users.controller;
 
 import com.mingleroom.domain.users.dto.JoinReq;
 import com.mingleroom.domain.users.dto.LoginReq;
+import com.mingleroom.domain.users.dto.PrincipalRes;
 import com.mingleroom.domain.users.dto.TokenRes;
 import com.mingleroom.domain.users.service.AuthService;
 import com.mingleroom.security.config.UserPrincipal;
@@ -36,10 +37,10 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/principal")
-    public ResponseEntity<UserPrincipal> principalUser(@AuthenticationPrincipal UserPrincipal user){
-
-        return ResponseEntity.ok(user);
+    @GetMapping("/me")
+    public ResponseEntity<PrincipalRes> principalUser(@AuthenticationPrincipal UserPrincipal user){
+        PrincipalRes principal = new PrincipalRes(user.getId(),user.getEmail(),user.getUsername(),user.getRole(),user.getProfileImg(),user.getBanned(),user.getCreatedAt(),user.getLastLoginAt(),user.getPasswordUpdatedAt());
+        return ResponseEntity.ok(principal);
     }
 
     @PostMapping("/refresh")
