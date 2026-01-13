@@ -42,9 +42,9 @@ public class AuthService {
 
     // 회원가입
     public void join(JoinReq joinReq) {
-        var email = joinReq.email();
-        var password = joinReq.password();
-        var username = joinReq.username();
+        String email = joinReq.email();
+        String password = joinReq.password();
+        String username = joinReq.username();
 
         if (email.isBlank() || password.isBlank() || username.isBlank()){
             throw new GlobalException(ErrorCode.BAD_REQUEST, "제대로 입력해주세요.");
@@ -63,7 +63,7 @@ public class AuthService {
     }
 
     public TokenRes login(LoginReq loginReq, HttpServletResponse res){
-        var user = userRepository.findByEmail(loginReq.email()).orElseThrow(() -> new GlobalException(ErrorCode.BAD_REQUEST, "이메일을 확인해주세요."));
+        User user = userRepository.findByEmail(loginReq.email()).orElseThrow(() -> new GlobalException(ErrorCode.BAD_REQUEST, "이메일을 확인해주세요."));
 
         if (!passwordEncoder.matches(loginReq.password(), user.getPasswordHash())){
             throw new GlobalException(ErrorCode.BAD_REQUEST, "비밀번호가 일치하지않습니다.");
