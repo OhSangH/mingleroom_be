@@ -119,7 +119,7 @@
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/mingleroom
 SPRING_DATASOURCE_USERNAME=postgres
 SPRING_DATASOURCE_PASSWORD=password
-JWT_SECRET=your_jwt_secret_key_here
+JWT_SECRET=jwt_secret_key_here
 ```
 
 ## 8. 개발 로드맵
