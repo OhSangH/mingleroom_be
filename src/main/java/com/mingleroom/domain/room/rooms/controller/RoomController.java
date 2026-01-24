@@ -39,37 +39,16 @@ public class RoomController {
         return ResponseEntity.status(HttpStatus.CREATED).body(roomRes);
     }
 
-    @PostMapping("/{roomId}/members/me")
+    @PostMapping("/{roomId}/join/me")
     public ResponseEntity<Void> joinRoom(@PathVariable Long roomId, @AuthenticationPrincipal UserPrincipal principal) {
         roomService.joinRoom(roomId, principal.getEmail());
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{roomId}/members/me")
+    @DeleteMapping("/{roomId}/leave/me")
     public ResponseEntity<Void> leaveRoom(@PathVariable Long roomId, @AuthenticationPrincipal UserPrincipal principal) {
         roomService.leaveRoom(roomId, principal.getEmail());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/{roomId}/members")
-    @Transactional(readOnly = true)
-    public ResponseEntity<List<RoomMemberRes>> getRoomMembers(@PathVariable Long roomId) {
-        List<RoomMember> roomMembers = roomMemberRepository.findByRoomId(roomId);
-        if (roomMembers.isEmpty()) {
-            throw new GlobalException(ErrorCode.BAD_REQUEST, "Room Member Not Found");
-        }
-        List<RoomMemberRes> roomMemberRes = roomMembers.stream()
-                .map(m -> new RoomMemberRes(
-                        m.getUser().getId(),
-                        m.getUser().getEmail(),
-                        m.getUser().getUsername(),
-                        m.getRoleInRoom(),
-                        m.getJoinedAt(),
-                        m.getLastSeenAt(),
-                        m.isMuted(),
-                        m.isHandRaised()
-                ))
-                .toList();
-        return ResponseEntity.ok(roomMemberRes);
-    }
 }
