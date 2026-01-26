@@ -22,13 +22,25 @@ public class WorkspaceController {
     @PostMapping
     public ResponseEntity<WorkspaceRes> createWorkspace(@RequestBody WorkspaceCreateReq workspaceCreateReq, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         WorkspaceRes ws = workspaceService.createWorkspace(workspaceCreateReq, userPrincipal.getEmail());
-        return  ResponseEntity.status(HttpStatus.CREATED).body(ws);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ws);
     }
 
     @GetMapping
-    public  ResponseEntity<List<WorkspaceRes>> getWorkspace(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<List<WorkspaceRes>> getWorkspaces(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<WorkspaceRes> wsList = workspaceService.getWorkspaces(userPrincipal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(wsList);
+    }
+
+    @GetMapping("/{roomId}")
+    public ResponseEntity<WorkspaceRes> getWorkspaceDetail(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long roomId) {
+        WorkspaceRes ws = workspaceService.getWorkspaceDetail(roomId, userPrincipal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(ws);
+    }
+
+    @PatchMapping("/{roomId}")
+    public ResponseEntity<Void> setWorkspace(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long roomId, @RequestBody WorkspaceCreateReq workspaceCreateReq) {
+        workspaceService.setWorkspace(roomId, userPrincipal.getId(), workspaceCreateReq);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 

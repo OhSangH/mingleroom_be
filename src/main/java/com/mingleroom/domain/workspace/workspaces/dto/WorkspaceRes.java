@@ -6,6 +6,7 @@ public record WorkspaceRes(
         Long id,
         String name,
         Long ownerId,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt
 ) {
 }

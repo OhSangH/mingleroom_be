@@ -46,7 +46,34 @@ public class WorkspaceService {
         return wsList.stream().map(this::toWorkspaceRes).toList();
     }
 
-    private WorkspaceRes toWorkspaceRes(Workspace ws){
-        return new WorkspaceRes(ws.getId(),ws.getName(),ws.getOwner().getId(),ws.getCreatedAt());
+    public WorkspaceRes getWorkspaceDetail(Long workspaceId, Long userId) {
+        Workspace ws = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND,"WORKSPACE_NOT_FOUND"));
+
+        if(!userId.equals(ws.getOwner().getId())){
+            throw new GlobalException(ErrorCode.FORBIDDEN,"USER_NOT_MATCHED");
+        }
+
+        return toWorkspaceRes(ws);
     }
+
+    public void setWorkspace(Long workspaceId, Long userId, WorkspaceCreateReq workspaceCreateReq) {
+        Workspace ws = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_NOT_FOUND"));
+
+        if(!userId.equals(ws.getOwner().getId())){
+            throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_MATCHED");
+        }
+        String name = workspaceCreateReq.name();
+
+        if(name.equals(ws.getName())) throw new GlobalException(ErrorCode.BAD_REQUEST, "NAME_ALREADY_EXISTS");
+        ws.setName(name);
+        workspaceRepository.save(ws);
+    }
+
+    private WorkspaceRes toWorkspaceRes(Workspace ws){
+        return new WorkspaceRes(ws.getId(),ws.getName(),ws.getOwner().getId(),ws.getCreatedAt(),ws.getUpdatedAt());
+    }
+
+
 }
