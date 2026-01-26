@@ -43,5 +43,9 @@ public class WorkspaceController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<Void> deleteWorkspace(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long roomId) {
+        workspaceService.deleteWorkspace(roomId, userPrincipal.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

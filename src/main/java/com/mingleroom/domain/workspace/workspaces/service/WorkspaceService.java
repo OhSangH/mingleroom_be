@@ -71,6 +71,15 @@ public class WorkspaceService {
         workspaceRepository.save(ws);
     }
 
+    public void deleteWorkspace(Long workspaceId, Long userId) {
+        Workspace ws = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_NOT_FOUND"));
+        if(!userId.equals(ws.getOwner().getId())){
+            throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_MATCHED");
+        }
+        workspaceRepository.delete(ws);
+    }
+
     private WorkspaceRes toWorkspaceRes(Workspace ws){
         return new WorkspaceRes(ws.getId(),ws.getName(),ws.getOwner().getId(),ws.getCreatedAt(),ws.getUpdatedAt());
     }
