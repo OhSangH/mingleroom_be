@@ -1,4 +1,3 @@
 package com.mingleroom.common.enums;
 
-public enum WorkspaceRole {OWNER, MEMBER
-}
+public enum WorkspaceRole {OWNER, MEMBER, ADMIN}

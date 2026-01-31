@@ -1,8 +1,10 @@
 package com.mingleroom.domain.workspace.workspaces.service;
 
 import com.mingleroom.common.enums.ErrorCode;
+import com.mingleroom.common.enums.WorkspaceRole;
 import com.mingleroom.domain.users.entity.User;
 import com.mingleroom.domain.users.repository.UserRepository;
+import com.mingleroom.domain.workspace.members.service.WorkspaceMemberService;
 import com.mingleroom.domain.workspace.workspaces.dto.WorkspaceCreateReq;
 import com.mingleroom.domain.workspace.workspaces.dto.WorkspaceRes;
 import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
@@ -20,13 +22,14 @@ import java.util.List;
 public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceMemberService workspaceMemberService;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
 
     @Transactional
-    public WorkspaceRes createWorkspace(WorkspaceCreateReq req , String email) {
+    public WorkspaceRes createWorkspace(WorkspaceCreateReq req, String email) {
         User owner = userRepository.findByEmail(email)
-                .orElseThrow(() -> new GlobalException(ErrorCode.UNAUTHORIZED,"USER_NOT_FOUND"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.UNAUTHORIZED, "USER_NOT_FOUND"));
 
         Workspace ws = Workspace.builder()
                 .name(req.name())
@@ -36,6 +39,9 @@ public class WorkspaceService {
         workspaceRepository.save(ws);
         entityManager.flush();
         entityManager.refresh(ws);
+
+        workspaceMemberService.addWorkspaceMember(ws.getId(), email, WorkspaceRole.OWNER);
+
 
         return toWorkspaceRes(ws);
     }
@@ -48,10 +54,10 @@ public class WorkspaceService {
 
     public WorkspaceRes getWorkspaceDetail(Long workspaceId, Long userId) {
         Workspace ws = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND,"WORKSPACE_NOT_FOUND"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_NOT_FOUND"));
 
-        if(!userId.equals(ws.getOwner().getId())){
-            throw new GlobalException(ErrorCode.FORBIDDEN,"USER_NOT_MATCHED");
+        if (!userId.equals(ws.getOwner().getId())) {
+            throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_MATCHED");
         }
 
         return toWorkspaceRes(ws);
@@ -61,12 +67,12 @@ public class WorkspaceService {
         Workspace ws = workspaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_NOT_FOUND"));
 
-        if(!userId.equals(ws.getOwner().getId())){
+        if (!userId.equals(ws.getOwner().getId())) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_MATCHED");
         }
         String name = workspaceCreateReq.name();
 
-        if(name.equals(ws.getName())) throw new GlobalException(ErrorCode.BAD_REQUEST, "NAME_ALREADY_EXISTS");
+        if (name.equals(ws.getName())) throw new GlobalException(ErrorCode.BAD_REQUEST, "NAME_ALREADY_EXISTS");
         ws.setName(name);
         workspaceRepository.save(ws);
     }
@@ -74,14 +80,14 @@ public class WorkspaceService {
     public void deleteWorkspace(Long workspaceId, Long userId) {
         Workspace ws = workspaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_NOT_FOUND"));
-        if(!userId.equals(ws.getOwner().getId())){
+        if (!userId.equals(ws.getOwner().getId())) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_MATCHED");
         }
         workspaceRepository.delete(ws);
     }
 
-    private WorkspaceRes toWorkspaceRes(Workspace ws){
-        return new WorkspaceRes(ws.getId(),ws.getName(),ws.getOwner().getId(),ws.getCreatedAt(),ws.getUpdatedAt());
+    private WorkspaceRes toWorkspaceRes(Workspace ws) {
+        return new WorkspaceRes(ws.getId(), ws.getName(), ws.getOwner().getId(), ws.getCreatedAt(), ws.getUpdatedAt());
     }
 
 

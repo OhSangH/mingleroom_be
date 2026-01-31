@@ -13,6 +13,7 @@ import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder

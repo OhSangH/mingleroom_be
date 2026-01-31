@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember,Long> {
     List<WorkspaceMember> findAllByWorkspace(Workspace workspace);
+
+    boolean existsByIdUserIdAndIdWorkspaceId(Long idUserId, Long idWorkspaceId);
 }
