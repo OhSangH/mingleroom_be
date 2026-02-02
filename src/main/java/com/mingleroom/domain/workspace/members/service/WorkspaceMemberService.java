@@ -10,7 +10,7 @@ import com.mingleroom.domain.workspace.members.entity.WorkspaceMemberId;
 import com.mingleroom.domain.workspace.members.repository.WorkspaceMemberRepository;
 import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import com.mingleroom.domain.workspace.workspaces.repository.WorkspaceRepository;
-import com.mingleroom.exeption.GlobalException;
+import com.mingleroom.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

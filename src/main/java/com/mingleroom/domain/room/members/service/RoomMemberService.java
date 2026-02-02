@@ -4,7 +4,7 @@ import com.mingleroom.common.enums.ErrorCode;
 import com.mingleroom.domain.room.members.dto.RoomMemberRes;
 import com.mingleroom.domain.room.members.entity.RoomMember;
 import com.mingleroom.domain.room.members.repository.RoomMemberRepository;
-import com.mingleroom.exeption.GlobalException;
+import com.mingleroom.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

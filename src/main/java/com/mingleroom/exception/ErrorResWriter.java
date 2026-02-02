@@ -1,7 +1,7 @@
-package com.mingleroom.exeption;
+package com.mingleroom.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mingleroom.exeption.dto.ErrorRes;
+import com.mingleroom.exception.dto.ErrorRes;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

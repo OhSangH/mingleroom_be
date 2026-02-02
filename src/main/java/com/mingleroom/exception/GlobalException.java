@@ -1,4 +1,4 @@
-package com.mingleroom.exeption;
+package com.mingleroom.exception;
 
 import com.mingleroom.common.enums.ErrorCode;
 import lombok.Getter;

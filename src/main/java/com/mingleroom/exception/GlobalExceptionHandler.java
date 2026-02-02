@@ -1,8 +1,8 @@
-package com.mingleroom.exeption;
+package com.mingleroom.exception;
 
 
 import com.mingleroom.common.enums.ErrorCode;
-import com.mingleroom.exeption.dto.ErrorRes;
+import com.mingleroom.exception.dto.ErrorRes;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;

@@ -9,7 +9,7 @@ import com.mingleroom.domain.workspace.workspaces.dto.WorkspaceCreateReq;
 import com.mingleroom.domain.workspace.workspaces.dto.WorkspaceRes;
 import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import com.mingleroom.domain.workspace.workspaces.repository.WorkspaceRepository;
-import com.mingleroom.exeption.GlobalException;
+import com.mingleroom.exception.GlobalException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

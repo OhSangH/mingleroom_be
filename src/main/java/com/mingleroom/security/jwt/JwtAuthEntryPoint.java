@@ -1,8 +1,8 @@
 package com.mingleroom.security.jwt;
 
 import com.mingleroom.common.enums.ErrorCode;
-import com.mingleroom.exeption.ErrorResWriter;
-import com.mingleroom.exeption.dto.ErrorRes;
+import com.mingleroom.exception.ErrorResWriter;
+import com.mingleroom.exception.dto.ErrorRes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

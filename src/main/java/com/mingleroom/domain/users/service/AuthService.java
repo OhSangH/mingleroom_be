@@ -9,7 +9,7 @@ import com.mingleroom.domain.users.dto.LoginReq;
 import com.mingleroom.domain.users.dto.TokenRes;
 import com.mingleroom.domain.users.entity.User;
 import com.mingleroom.domain.users.repository.UserRepository;
-import com.mingleroom.exeption.GlobalException;
+import com.mingleroom.exception.GlobalException;
 import com.mingleroom.security.jwt.JwtProvider;
 import com.mingleroom.security.jwt.TokenUtils;
 import jakarta.servlet.http.Cookie;
