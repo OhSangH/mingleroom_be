@@ -12,7 +12,6 @@ import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import com.mingleroom.domain.workspace.workspaces.repository.WorkspaceRepository;
 import com.mingleroom.exception.GlobalException;
 import com.mingleroom.security.config.UserPrincipal;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,30 +29,33 @@ public class WorkspaceMemberService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
 
-    public List<WorkspaceMemberRes> getWorkspaceMember(Long workspaceId) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new EntityNotFoundException("WORKSPACE_NOT_FOUND"));
+    public List<WorkspaceMemberRes> getWorkspaceMember(Long workspaceId, UserPrincipal reqUser) {
+        requireMemberOrGlobalAdmin(workspaceId, reqUser);
 
-        return workspaceMemberRepository.findAllByWorkspace(workspace).stream().map(this::toWorkspaceMemberRes).toList();
+        return workspaceMemberRepository.findAllByWorkspaceId(workspaceId).stream().map(this::toWorkspaceMemberRes).toList();
     }
 
     @Transactional
-    public WorkspaceMemberRes addWorkspaceMember(Long workspaceId, String email, WorkspaceRole role, UserPrincipal admin) {
-        checkAdmin(workspaceId, admin);
-
-        return addWorkspaceMember(workspaceId, email, role);
-    }
-
-    @Transactional
-    public WorkspaceMemberRes addWorkspaceMember(Long workspaceId, String email, WorkspaceRole role) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new EntityNotFoundException("WORKSPACE_NOT_FOUND"));
+    public WorkspaceMemberRes addWorkspaceMember(Long workspaceId, String email, WorkspaceRole role, UserPrincipal reqUser) {
+        requireAdminOrGlobal(workspaceId, reqUser);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "USER_NOT_FOUND"));
+
+        return addWorkspaceMember(workspaceId, user, role);
+    }
+
+    @Transactional
+    public void addOwnerOnCreate(Long workspaceId, User owner) {
+        addWorkspaceMember(workspaceId, owner, WorkspaceRole.OWNER);
+    }
+
+    protected WorkspaceMemberRes addWorkspaceMember(Long workspaceId, User user, WorkspaceRole role) {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_NOT_FOUND"));
 
         if (workspaceMemberRepository.existsByIdUserIdAndIdWorkspaceId(user.getId(), workspace.getId())) {
-            throw new GlobalException(ErrorCode.CONFLICT, "이미 존재하는 멤버입니다.");
+            throw new GlobalException(ErrorCode.CONFLICT, "USER_ALREADY_EXISTS");
         }
 
         WorkspaceMember workspaceMember = WorkspaceMember.builder()
@@ -69,13 +71,16 @@ public class WorkspaceMemberService {
         return toWorkspaceMemberRes(workspaceMember);
     }
 
-    public WorkspaceMemberRes setWorkspaceMemberRole(Long workspaceId, Long userId, WorkspaceRole role, UserPrincipal admin) {
-        checkAdmin(workspaceId, admin);
+    public WorkspaceMemberRes setWorkspaceMemberRole(Long workspaceId, Long userId, WorkspaceRole role, UserPrincipal reqUser) {
+        requireAdminOrGlobal(workspaceId, reqUser);
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, userId))
-                .orElseThrow(() -> new EntityNotFoundException("WORKSPACE_MEMBER_NOT_FOUND"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_MEMBER_NOT_FOUND"));
 
-        if(workspaceMember.getRoleInWorkspace().equals(WorkspaceRole.OWNER)) throw new GlobalException(ErrorCode.FORBIDDEN, "OWNER_CANNOT_CHANGE_ROLE");
+        if (workspaceMember.getRoleInWorkspace().equals(WorkspaceRole.OWNER))
+            throw new GlobalException(ErrorCode.FORBIDDEN, "OWNER_ROLE_IMMUTABLE");
+
+        if (role.equals(WorkspaceRole.OWNER)) throw new GlobalException(ErrorCode.FORBIDDEN, "USE_TRANSFER_API");
 
         workspaceMember.setRoleInWorkspace(role);
         workspaceMemberRepository.save(workspaceMember);
@@ -83,11 +88,11 @@ public class WorkspaceMemberService {
         return toWorkspaceMemberRes(workspaceMember);
     }
 
-    public void deleteWorkspaceMember(Long workspaceId, Long userId, UserPrincipal admin) {
-        checkAdmin(workspaceId, admin);
+    public void deleteWorkspaceMember(Long workspaceId, Long userId, UserPrincipal reqUser) {
+        requireAdminOrGlobal(workspaceId, reqUser);
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, userId))
-                .orElseThrow(() -> new EntityNotFoundException("WORKSPACE_MEMBER_NOT_FOUND"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_MEMBER_NOT_FOUND"));
 
         if (workspaceMember.getRoleInWorkspace().equals(WorkspaceRole.OWNER)) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "OWNER_CANNOT_DELETE");
@@ -96,19 +101,42 @@ public class WorkspaceMemberService {
         workspaceMemberRepository.delete(workspaceMember);
     }
 
-    public void checkAdmin(Long workspaceId, UserPrincipal admin) {
-        WorkspaceMember workspaceAdmin = workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, admin.getId()))
-                .orElseThrow(() -> new EntityNotFoundException("WORKSPACE_ADMIN_NOT_FOUND"));
+    public void requireAdminOrGlobal(Long workspaceId, UserPrincipal user) {
+        if (requireGlobalAdmin(user)) return;
+
+        WorkspaceMember workspaceAdmin = workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, user.getId()))
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_USER_NOT_FOUND"));
 
         if (workspaceAdmin.getRoleInWorkspace().equals(WorkspaceRole.MEMBER)) {
-            requireGlobalAdmin(admin);
+            throw new GlobalException(ErrorCode.FORBIDDEN, "MEMBER_CANNOT_CHANGE_ROLE");
         }
     }
 
-    private void requireGlobalAdmin(UserPrincipal admin) {
-        if (!admin.getRole().equals("ROLE_ADMIN")) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_ADMIN");
-        }
+
+    public void transferWorkspaceOwner(Long workspaceId, Long userId, Long ownerId) {
+        WorkspaceMember newOwner = workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, userId))
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_MEMBER_NOT_FOUND"));
+
+        newOwner.setRoleInWorkspace(WorkspaceRole.OWNER);
+        workspaceMemberRepository.save(newOwner);
+
+        WorkspaceMember owner = workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, ownerId))
+                        .orElseThrow(() -> new  GlobalException(ErrorCode.NOT_FOUND, "WORKSPACE_MEMBER_NOT_FOUND"));
+
+        owner.setRoleInWorkspace(WorkspaceRole.ADMIN);
+
+        workspaceMemberRepository.save(owner);
+    }
+
+    public void requireMemberOrGlobalAdmin(Long workspaceId, UserPrincipal user) {
+        if (requireGlobalAdmin(user)) return;
+
+        workspaceMemberRepository.findById(new WorkspaceMemberId(workspaceId, user.getId()))
+                .orElseThrow(() -> new GlobalException(ErrorCode.FORBIDDEN, "WORKSPACE_USER_NOT_FOUND"));
+    }
+
+    private boolean requireGlobalAdmin(UserPrincipal admin) {
+        return admin.getRole().equals("ROLE_ADMIN");
     }
 
     private WorkspaceMemberRes toWorkspaceMemberRes(WorkspaceMember workspaceMember) {

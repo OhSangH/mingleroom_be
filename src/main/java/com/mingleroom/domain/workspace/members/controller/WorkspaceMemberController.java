@@ -20,8 +20,8 @@ public class WorkspaceMemberController {
     private final WorkspaceMemberService workspaceMemberService;
 
     @GetMapping
-    public ResponseEntity<List<WorkspaceMemberRes>> getWorkspaceMembers(@PathVariable Long workspaceId) {
-        List<WorkspaceMemberRes> workspaceMembers = workspaceMemberService.getWorkspaceMember(workspaceId);
+    public ResponseEntity<List<WorkspaceMemberRes>> getWorkspaceMembers(@PathVariable Long workspaceId,@AuthenticationPrincipal UserPrincipal principal) {
+        List<WorkspaceMemberRes> workspaceMembers = workspaceMemberService.getWorkspaceMember(workspaceId, principal);
         return ResponseEntity.ok(workspaceMembers);
     }
 

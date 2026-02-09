@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class RoomController {
 
     private final RoomService roomService;
-    private final RoomMemberRepository roomMemberRepository;
 
     @PostMapping("/create")
     public ResponseEntity<RoomRes> createRoom(@RequestBody RoomCreateReq roomCreateReq, @AuthenticationPrincipal UserPrincipal principal) {
