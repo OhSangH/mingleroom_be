@@ -19,15 +19,25 @@
 ## 3. API 명세 요약
 
 ### Auth & User
-- `POST /auth/signup`, `/auth/login`: 회원가입 및 JWT 발급
-- `GET /auth/me`, `/user/me`: 내 정보 조회 및 프로필 수정
+- `POST /auth/signup`, `/login`, `/logout`: 회원가입, 로그인, 로그아웃
+- `POST /auth/refresh`: 토큰 재발급
+- `GET /auth/me`: 내 정보 조회
+- `PATCH /users/me`: 프로필 및 비밀번호 수정
 
-### Workspace & Room
+### Workspace & Members
 - `POST /workspaces`: 워크스페이스 생성
 - `GET /workspaces`: 내 워크스페이스 목록 조회
+- `PATCH /workspaces/{id}`: 워크스페이스 수정 및 소유권 이전
+- `POST /workspaces/{id}/members`: 멤버 초대
+- `DELETE /workspaces/{id}/members/{userId}`: 멤버 추방
+
+### Room & Invites
 - `POST /rooms`: 룸 생성 (워크스페이스에 속하거나 독립적으로)
 - `GET /rooms`: 룸 목록 검색
-- `POST /rooms/{id}/join`: 룸 입장 (비밀번호/초대코드)
+- `POST /rooms/{id}/join`: 룸 입장 (비밀번호)
+- `DELETE /rooms/{id}`: 룸 삭제 (Host)
+- `POST /rooms/{id}/invites`: 초대 링크 생성
+- `POST /rooms/invites/{token}/join`: 초대 링크로 입장
 
 ### Real-time (WebSocket/STOMP)
 - **Endpoint**: `/ws-stomp`
@@ -42,11 +52,13 @@
 - `GET/PUT /rooms/{id}/note`: 공유 노트 조회/저장
 - `POST /rooms/{id}/action-items`: 액션 아이템 생성 및 관리
 - `GET /rooms/{id}/board/snapshot`: 화이트보드 스냅샷 저장/로드
-- `POST /rooms/{id}/polls`: 투표 생성 및 관리
+- `POST /rooms/{id}/polls`: 투표 생성 및 관리 (종료 포함)
 - `POST /rooms/{id}/bookmarks`: 타임스탬프 북마크 생성
 
 ### Admin & Management
 - `POST /reports`: 사용자/콘텐츠 신고
+- `GET /admin/reports`: 신고 목록 조회 (Admin)
+- `PATCH /admin/reports/{id}`: 신고 처리 (Admin)
 - `GET /audit-logs`: 감사 로그 조회 (Admin)
 - `POST /attachments/presigned-url`: 파일 업로드를 위한 Presigned URL 요청
 
