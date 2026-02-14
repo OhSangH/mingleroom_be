@@ -10,7 +10,7 @@ import com.mingleroom.domain.workspace.members.entity.WorkspaceMemberId;
 import com.mingleroom.domain.workspace.members.repository.WorkspaceMemberRepository;
 import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import com.mingleroom.domain.workspace.workspaces.repository.WorkspaceRepository;
-import com.mingleroom.exception.GlobalException;
+import com.mingleroom.common.exception.GlobalException;
 import com.mingleroom.security.config.UserPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;

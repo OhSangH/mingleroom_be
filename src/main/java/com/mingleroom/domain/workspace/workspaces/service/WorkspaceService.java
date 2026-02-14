@@ -8,7 +8,7 @@ import com.mingleroom.domain.workspace.workspaces.dto.WorkspaceCreateReq;
 import com.mingleroom.domain.workspace.workspaces.dto.WorkspaceRes;
 import com.mingleroom.domain.workspace.workspaces.entity.Workspace;
 import com.mingleroom.domain.workspace.workspaces.repository.WorkspaceRepository;
-import com.mingleroom.exception.GlobalException;
+import com.mingleroom.common.exception.GlobalException;
 import com.mingleroom.security.config.UserPrincipal;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

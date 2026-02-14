@@ -1,11 +1,10 @@
 package com.mingleroom.domain.room.rooms.controller;
 
 import com.mingleroom.common.enums.ErrorCode;
-import com.mingleroom.domain.room.members.repository.RoomMemberRepository;
 import com.mingleroom.domain.room.rooms.dto.RoomCreateReq;
 import com.mingleroom.domain.room.rooms.dto.RoomRes;
 import com.mingleroom.domain.room.rooms.service.RoomService;
-import com.mingleroom.exception.GlobalException;
+import com.mingleroom.common.exception.GlobalException;
 import com.mingleroom.security.config.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.mingleroom.exception.dto;
+package com.mingleroom.common.exception.dto;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
