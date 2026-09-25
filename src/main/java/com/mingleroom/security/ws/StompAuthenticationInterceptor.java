@@ -27,8 +27,8 @@ public class StompAuthenticationInterceptor implements ChannelInterceptor {
     private final RoomMemberRepository members;
     private final RoomRepository rooms;
     private static final String EXPIRY = "mingleroom.jwtExpiresAt";
-    private static final Pattern SEND = Pattern.compile("^/pub/chat/room/([1-9][0-9]*)$");
-    private static final Pattern SUBSCRIBE = Pattern.compile("^/sub/chat/room/([1-9][0-9]*)$");
+    private static final Pattern SEND = Pattern.compile("^/pub/(?:chat|cursor)/room/([1-9][0-9]*)$");
+    private static final Pattern SUBSCRIBE = Pattern.compile("^/sub/(?:chat|board|cursor)/room/([1-9][0-9]*)$");
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
