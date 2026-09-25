@@ -21,10 +21,17 @@ import com.mingleroom.domain.workspace.workspaces.repository.WorkspaceRepository
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.mingleroom.common.enums.ErrorCode;
+import com.mingleroom.common.enums.RoomVisibility;
+import com.mingleroom.common.enums.InvitePolicy;
+import com.mingleroom.common.exception.GlobalException;
+import java.util.List;
 
 import java.time.OffsetDateTime;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
@@ -34,6 +41,25 @@ public class RoomService {
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ObjectMapper objectMapper;
+
+    @Transactional(readOnly = true)
+    public List<RoomRes> getMyRooms(Long userId) {
+        return roomMemberRepository.findAllByIdUserId(userId).stream()
+                .map(RoomMember::getRoom)
+                .filter(room -> room.getEndedAt() == null)
+                .map(room -> new RoomRes(room.getId(), room.getTitle(), room.getVisibility()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public RoomRes getRoom(Long roomId, Long userId) {
+        if (!roomMemberRepository.existsByIdRoomIdAndIdUserId(roomId, userId)) {
+            throw new GlobalException(ErrorCode.FORBIDDEN, "방 참가자만 조회할 수 있습니다.");
+        }
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "회의실을 찾을 수 없습니다."));
+        return new RoomRes(room.getId(), room.getTitle(), room.getVisibility());
+    }
 
     public RoomRes createRoom(String email, RoomCreateReq req) {
         User me = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
@@ -79,12 +105,18 @@ public class RoomService {
         Room room  = roomRepository.findById(roomId).orElseThrow(() -> new EntityNotFoundException("ROOM_NOT_FOUND"));
 
         if(room.getEndedAt() != null){
-            throw new IllegalStateException("ROOM_ENDED");
+            throw new GlobalException(ErrorCode.CONFLICT, "종료된 회의실입니다.");
         }
 
         if(roomMemberRepository.existsByIdRoomIdAndIdUserId(roomId, user.getId())){
-            saveEvent(room,user,RoomEventType.JOIN,payloadJoin("already_member"));
             return;
+        }
+
+        if (room.isLocked()) {
+            throw new GlobalException(ErrorCode.FORBIDDEN, "잠긴 회의실에는 새로 입장할 수 없습니다.");
+        }
+        if (room.getVisibility() != RoomVisibility.PUBLIC || room.getInvitePolicy() != InvitePolicy.LINK) {
+            throw new GlobalException(ErrorCode.FORBIDDEN, "이 회의실은 초대 확인이 필요합니다. 초대 입장 API는 아직 구현되지 않았습니다.");
         }
 
         RoomMember member = RoomMember.builder()

@@ -39,7 +39,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<PrincipalRes> principalUser(@AuthenticationPrincipal UserPrincipal user){
-        PrincipalRes principal = new PrincipalRes(user.getId(),user.getEmail(),user.getUsername(),user.getRole(),user.getProfileImg(),user.getBanned(),user.getCreatedAt(),user.getLastLoginAt(),user.getPasswordUpdatedAt());
+        PrincipalRes principal = new PrincipalRes(user.getId(),user.getEmail(),user.getDisplayName(),user.getRole(),user.getProfileImg(),user.getBanned(),user.getCreatedAt(),user.getLastLoginAt(),user.getPasswordUpdatedAt());
         return ResponseEntity.ok(principal);
     }
 

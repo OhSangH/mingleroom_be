@@ -46,3 +46,13 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// DB-free contract checks for the local room integration patch.
+tasks.register('roomContractTest', Test) {
+    description = 'Checks room access and STOMP contracts without starting a database.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform()
+    include '**/integration/*Test.class'
+}

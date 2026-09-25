@@ -7,6 +7,8 @@ import com.mingleroom.domain.room.rooms.service.RoomService;
 import com.mingleroom.common.exception.GlobalException;
 import com.mingleroom.security.config.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +23,19 @@ public class RoomController {
 
     private final RoomService roomService;
 
+    @GetMapping
+    public ResponseEntity<List<RoomRes>> getMyRooms(@AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(roomService.getMyRooms(principal.getId()));
+    }
+
+    @GetMapping("/{roomId}")
+    public ResponseEntity<RoomRes> getRoom(@PathVariable Long roomId,
+                                         @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(roomService.getRoom(roomId, principal.getId()));
+    }
+
     @PostMapping("/create")
-    public ResponseEntity<RoomRes> createRoom(@RequestBody RoomCreateReq roomCreateReq, @AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<RoomRes> createRoom(@Valid @RequestBody RoomCreateReq roomCreateReq, @AuthenticationPrincipal UserPrincipal principal) {
         log.info("principal {}", principal.getEmail());
         RoomRes roomRes = roomService.createRoom(principal.getEmail(), roomCreateReq);
 
