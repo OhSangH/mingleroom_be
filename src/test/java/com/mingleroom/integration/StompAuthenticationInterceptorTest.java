@@ -88,4 +88,13 @@ class StompAuthenticationInterceptorTest {
         var m=message(roomMessage(StompCommand.SEND,"/pub/chat/room/1"));
         assertThrows(AccessDeniedException.class,()->interceptor.preSend(m,null));
     }
+    @Test void permitsBoardAndCursorButNeverClientBoardBroadcast() {
+        when(members.existsByIdRoomIdAndIdUserId(1L,7L)).thenReturn(true);
+        when(rooms.findById(1L)).thenReturn(Optional.of(Room.builder().id(1L).build()));
+        for(String dest:new String[]{"/sub/board/room/1","/sub/cursor/room/1"}) {
+            var m=message(roomMessage(StompCommand.SUBSCRIBE,dest));assertSame(m,interceptor.preSend(m,null));
+        }
+        var cursor=message(roomMessage(StompCommand.SEND,"/pub/cursor/room/1"));assertSame(cursor,interceptor.preSend(cursor,null));
+        assertThrows(AccessDeniedException.class,()->interceptor.preSend(message(roomMessage(StompCommand.SEND,"/pub/board/room/1")),null));
+    }
 }
