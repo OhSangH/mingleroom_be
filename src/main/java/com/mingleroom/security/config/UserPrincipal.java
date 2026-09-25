@@ -30,6 +30,10 @@ public class UserPrincipal implements UserDetails {
     }
 
 
+    public String getDisplayName() {
+        return user.getUsername();
+    }
+
     public Long getId() {
         return user.getId();
     }
