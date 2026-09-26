@@ -97,4 +97,18 @@ class StompAuthenticationInterceptorTest {
         var cursor=message(roomMessage(StompCommand.SEND,"/pub/cursor/room/1"));assertSame(cursor,interceptor.preSend(cursor,null));
         assertThrows(AccessDeniedException.class,()->interceptor.preSend(message(roomMessage(StompCommand.SEND,"/pub/board/room/1")),null));
     }
+    @Test void signalSubscriptionsArePrivateToRecipient(){
+        when(members.existsByIdRoomIdAndIdUserId(1L,7L)).thenReturn(true);
+        when(rooms.findById(1L)).thenReturn(Optional.of(Room.builder().id(1L).build()));
+        var own=message(roomMessage(StompCommand.SUBSCRIBE,"/sub/signal/room/1/user/7"));assertSame(own,interceptor.preSend(own,null));
+        assertThrows(AccessDeniedException.class,()->interceptor.preSend(message(roomMessage(StompCommand.SUBSCRIBE,"/sub/signal/room/1/user/8")),null));
+        assertThrows(AccessDeniedException.class,()->interceptor.preSend(message(roomMessage(StompCommand.SUBSCRIBE,"/sub/chat/room/1/user/7")),null));
+    }
+    @Test void limitsChatFloodPerSession(){
+        when(members.existsByIdRoomIdAndIdUserId(1L,7L)).thenReturn(true);
+        when(rooms.findById(1L)).thenReturn(Optional.of(Room.builder().id(1L).build()));
+        var h=roomMessage(StompCommand.SEND,"/pub/chat/room/1");
+        for(int n=0;n<8;n++)assertNotNull(interceptor.preSend(message(h),null));
+        assertThrows(AccessDeniedException.class,()->interceptor.preSend(message(h),null));
+    }
 }

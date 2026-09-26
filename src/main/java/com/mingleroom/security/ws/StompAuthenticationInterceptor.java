@@ -27,8 +27,8 @@ public class StompAuthenticationInterceptor implements ChannelInterceptor {
     private final RoomMemberRepository members;
     private final RoomRepository rooms;
     private static final String EXPIRY = "mingleroom.jwtExpiresAt";
-    private static final Pattern SEND = Pattern.compile("^/pub/(?:chat|cursor)/room/([1-9][0-9]*)$");
-    private static final Pattern SUBSCRIBE = Pattern.compile("^/sub/(?:chat|board|cursor)/room/([1-9][0-9]*)$");
+    private static final Pattern SEND = Pattern.compile("^/pub/(?:chat|cursor|signal)/room/([1-9][0-9]*)$");
+    private static final Pattern SUBSCRIBE = Pattern.compile("^/sub/(?:chat|board|cursor|signal)/room/([1-9][0-9]*)(?:/user/([1-9][0-9]*))?$");
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -52,9 +52,24 @@ public class StompAuthenticationInterceptor implements ChannelInterceptor {
                     || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof UserPrincipal user)) throw denied();
             Object expiry = accessor.getSessionAttributes() == null ? null : accessor.getSessionAttributes().get(EXPIRY);
             if (!(expiry instanceof Long value) || value <= System.currentTimeMillis()) throw denied();
+            if(accessor.getCommand()==StompCommand.SEND){
+                if(message.getPayload() instanceof byte[] payload && payload.length>32768)throw denied();
+                var attributes=accessor.getSessionAttributes();
+                String destination=accessor.getDestination()==null?"":accessor.getDestination();
+                String key=destination.startsWith("/pub/chat/")?"chat":destination.startsWith("/pub/cursor/")?"cursor":"signal";
+                int limit=key.equals("chat")?8:key.equals("cursor")?20:80;
+                synchronized(attributes){
+                    String name="mingleroom.rate."+key;long now=System.currentTimeMillis();
+                    Object previous=attributes.get(name);long[] bucket=previous instanceof long[] b?b:new long[]{now,0};
+                    if(now-bucket[0]>=1000){bucket[0]=now;bucket[1]=0;}
+                    if(++bucket[1]>limit)throw denied();attributes.put(name,bucket);
+                }
+            }
             var pattern = accessor.getCommand() == StompCommand.SEND ? SEND : SUBSCRIBE;
             var matcher = pattern.matcher(accessor.getDestination() == null ? "" : accessor.getDestination());
             if (!matcher.matches()) throw denied();
+            if(accessor.getCommand()==StompCommand.SUBSCRIBE && matcher.group(2)!=null &&
+              (!accessor.getDestination().startsWith("/sub/signal/") || !matcher.group(2).equals(user.getId().toString())))throw denied();
             Long roomId;
             try { roomId = Long.valueOf(matcher.group(1)); } catch (NumberFormatException ex) { throw denied(); }
             if (!members.existsByIdRoomIdAndIdUserId(roomId, user.getId())) throw denied();

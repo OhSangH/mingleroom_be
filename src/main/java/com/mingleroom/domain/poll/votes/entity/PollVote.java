@@ -42,4 +42,6 @@ public class PollVote extends BaseCreatedEntity {
     // DB GENERATED ALWAYS AS (...) STORED
     @Column(name = "voter_key", insertable = false, updatable = false, columnDefinition = "text")
     private String voterKey;
+    public void choose(PollOption option){this.option=option;}
+
 }

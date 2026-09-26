@@ -18,10 +18,10 @@ import static org.mockito.Mockito.*;
 class RoomIntegrationTest {
     RoomRepository rooms=mock(RoomRepository.class);RoomMemberRepository members=mock(RoomMemberRepository.class);
     RoomEventRepository events=mock(RoomEventRepository.class);UserRepository users=mock(UserRepository.class);
-    RoomService service=new RoomService(rooms,members,events,mock(RoomInviteRepository.class),users,mock(WorkspaceRepository.class),new ObjectMapper());
+    RoomService service=new RoomService(rooms,mock(com.mingleroom.domain.collaboration.RoomBanRepository.class),members,events,mock(RoomInviteRepository.class),users,mock(WorkspaceRepository.class),mock(com.mingleroom.domain.workspace.members.repository.WorkspaceMemberRepository.class),new ObjectMapper());
     void setup(Room room) {
         var user=mock(User.class);when(user.getId()).thenReturn(7L);
-        when(users.findByEmail("test@example.test")).thenReturn(Optional.of(user));when(rooms.findById(1L)).thenReturn(Optional.of(room));
+        when(users.findByEmail("test@example.test")).thenReturn(Optional.of(user));when(rooms.lockForBoard(1L)).thenReturn(Optional.of(room));
     }
     @Test void newMemberCannotJoinLockedRoom() {
         setup(Room.builder().id(1L).locked(true).visibility(RoomVisibility.PUBLIC).invitePolicy(InvitePolicy.LINK).build());

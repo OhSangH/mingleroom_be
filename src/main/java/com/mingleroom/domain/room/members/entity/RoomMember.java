@@ -49,4 +49,8 @@ public class RoomMember {
 
     @Column(name = "hand_raised", nullable = false)
     private boolean handRaised;
+    public void changeRole(RoomRole role){this.roleInRoom=role;}
+    public void setMuted(boolean muted){this.muted=muted;}
+    public void raiseHand(boolean raised){this.handRaised=raised;}
+
 }
