@@ -64,4 +64,8 @@ public class ChatMessage extends BaseCreatedEntity {
 
     @Column(name = "deleted_at")
     private OffsetDateTime deletedAt;
+    @PrePersist
+    private void initializeCreatedAt() {
+        if (createdAt == null) createdAt = OffsetDateTime.now(java.time.ZoneOffset.UTC);
+    }
 }
