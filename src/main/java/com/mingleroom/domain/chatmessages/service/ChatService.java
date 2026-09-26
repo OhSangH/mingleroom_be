@@ -48,6 +48,14 @@ public class ChatService {
         if(afterId==null)Collections.reverse(page);
         return new ChatHistoryRes(page.stream().map(m->toDto(m,null)).toList(),next,more);
     }
+    @Transactional(readOnly=true)
+    public ChatHistoryRes search(Long roomId,Long userId,String q,String before){
+        member(roomId,userId);
+        if(q==null||q.isBlank()||q.length()>200)throw new GlobalException(ErrorCode.BAD_REQUEST,"검색어는 1~200자여야 합니다.");
+        var found=messages.search(roomId,q.trim(),parseCursor(before),PageRequest.of(0,51));
+        boolean more=found.size()>50;var page=found.subList(0,Math.min(50,found.size()));
+        return new ChatHistoryRes(page.stream().map(m->toDto(m,null)).toList(),more?String.valueOf(page.getLast().getId()):null,more);
+    }
     private Long parseCursor(String raw){
         if(raw==null)return null;
         if(!raw.matches("[1-9][0-9]*"))throw badCursor();

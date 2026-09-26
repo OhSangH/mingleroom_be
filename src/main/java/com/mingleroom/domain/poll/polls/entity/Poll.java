@@ -39,4 +39,6 @@ public class Poll extends BaseCreatedEntity {
 
     @Column(name = "closed_at")
     private OffsetDateTime closedAt;
+    public void close(){if(closedAt==null)closedAt=OffsetDateTime.now();}
+
 }

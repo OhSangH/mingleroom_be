@@ -57,4 +57,7 @@ public class Room extends BaseTimeEntity {
 
     @Column(name = "ended_at")
     private OffsetDateTime endedAt;
+    public void setLocked(boolean locked){this.locked=locked;}
+    public void end(){this.endedAt=OffsetDateTime.now();this.locked=true;}
+
 }

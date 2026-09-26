@@ -67,4 +67,7 @@ public class RoomInvite extends BaseCreatedEntity {
 
     @Column(name = "is_revoked", nullable = false)
     private boolean revoked;
+    public void consume(){this.usedCount++;}
+    public void revoke(){this.revoked=true;}
+
 }

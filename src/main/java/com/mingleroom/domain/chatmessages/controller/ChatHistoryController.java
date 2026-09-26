@@ -14,4 +14,6 @@ public class ChatHistoryController {
         @RequestParam(required=false) String after,@RequestParam(defaultValue="50") int limit,@AuthenticationPrincipal UserPrincipal user){
         return service.history(roomId,user.getId(),before,after,limit);
     }
+    @GetMapping("/search")
+    public ChatHistoryRes search(@PathVariable Long roomId,@AuthenticationPrincipal UserPrincipal user,@RequestParam String q,@RequestParam(required=false) String before){return service.search(roomId,user.getId(),q,before);}
 }

@@ -39,4 +39,6 @@ public class Note {
 
     @Column(nullable = false)
     private Integer version;
+    public void revise(String text, User actor) { content=text; updatedBy=actor; updatedAt=OffsetDateTime.now(); version++; }
+
 }

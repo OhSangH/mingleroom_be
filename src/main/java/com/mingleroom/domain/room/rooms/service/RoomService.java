@@ -35,11 +35,13 @@ import java.time.OffsetDateTime;
 @RequiredArgsConstructor
 public class RoomService {
     private final RoomRepository roomRepository;
+    private final com.mingleroom.domain.collaboration.RoomBanRepository bans;
     private final RoomMemberRepository roomMemberRepository;
     private final RoomEventRepository roomEventRepository;
     private final RoomInviteRepository roomInviteRepository;
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final com.mingleroom.domain.workspace.members.repository.WorkspaceMemberRepository workspaceMembers;
     private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
@@ -58,6 +60,7 @@ public class RoomService {
         }
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "회의실을 찾을 수 없습니다."));
+        if(room.getEndedAt()!=null)throw new GlobalException(ErrorCode.CONFLICT,"종료된 회의실입니다.");
         return new RoomRes(room.getId(), room.getTitle(), room.getVisibility());
     }
 
@@ -66,6 +69,7 @@ public class RoomService {
 
         Workspace ws = null;
         if (req.workspaceId() != null) {
+            if(!workspaceMembers.existsByIdUserIdAndIdWorkspaceId(me.getId(),req.workspaceId()))throw new GlobalException(ErrorCode.FORBIDDEN,"워크스페이스 참가자만 방을 만들 수 있습니다.");
             ws = workspaceRepository.findById(req.workspaceId()).orElseThrow(() -> new EntityNotFoundException("WORKSPACE_NOT_FOUND"));
         }
 
@@ -102,12 +106,13 @@ public class RoomService {
 
     public void joinRoom(Long roomId, String myEmail){
         User user = userRepository.findByEmail(myEmail).orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
-        Room room  = roomRepository.findById(roomId).orElseThrow(() -> new EntityNotFoundException("ROOM_NOT_FOUND"));
+        Room room  = roomRepository.lockForBoard(roomId).orElseThrow(() -> new EntityNotFoundException("ROOM_NOT_FOUND"));
 
         if(room.getEndedAt() != null){
             throw new GlobalException(ErrorCode.CONFLICT, "종료된 회의실입니다.");
         }
 
+        if(bans.existsById(new RoomMemberId(roomId,user.getId())))throw new GlobalException(ErrorCode.FORBIDDEN,"이 회의실에서 내보내진 계정입니다.");
         if(roomMemberRepository.existsByIdRoomIdAndIdUserId(roomId, user.getId())){
             return;
         }
@@ -116,7 +121,7 @@ public class RoomService {
             throw new GlobalException(ErrorCode.FORBIDDEN, "잠긴 회의실에는 새로 입장할 수 없습니다.");
         }
         if (room.getVisibility() != RoomVisibility.PUBLIC || room.getInvitePolicy() != InvitePolicy.LINK) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "이 회의실은 초대 확인이 필요합니다. 초대 입장 API는 아직 구현되지 않았습니다.");
+            throw new GlobalException(ErrorCode.FORBIDDEN, "이 회의실은 유효한 초대 링크가 필요합니다.");
         }
 
         RoomMember member = RoomMember.builder()
@@ -135,12 +140,14 @@ public class RoomService {
     }
 
     public void leaveRoom(Long roomId, String myEmail){
+        roomRepository.lockForBoard(roomId).orElseThrow(()->new GlobalException(ErrorCode.NOT_FOUND,"회의실을 찾을 수 없습니다."));
         User me = userRepository.findByEmail(myEmail)
                 .orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
 
         RoomMember member = roomMemberRepository.findByIdRoomIdAndIdUserId(roomId, me.getId())
                 .orElseThrow(() -> new IllegalStateException("NOT_A_MEMBER"));
 
+        if(member.getRoleInRoom()==RoomRole.HOST)throw new GlobalException(ErrorCode.CONFLICT,"호스트는 회의를 종료한 뒤 나갈 수 있습니다.");
         roomMemberRepository.delete(member);
 
         Room room = member.getRoom();

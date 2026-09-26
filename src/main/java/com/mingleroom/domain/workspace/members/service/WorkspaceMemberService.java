@@ -38,6 +38,7 @@ public class WorkspaceMemberService {
     @Transactional
     public WorkspaceMemberRes addWorkspaceMember(Long workspaceId, String email, WorkspaceRole role, UserPrincipal reqUser) {
         requireAdminOrGlobal(workspaceId, reqUser);
+        if(role==WorkspaceRole.OWNER)throw new GlobalException(ErrorCode.FORBIDDEN,"USE_TRANSFER_API");
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "USER_NOT_FOUND"));
@@ -136,7 +137,7 @@ public class WorkspaceMemberService {
     }
 
     private boolean requireGlobalAdmin(UserPrincipal admin) {
-        return admin.getRole().equals("ROLE_ADMIN");
+        return "ADMIN".equals(admin.getRole());
     }
 
     private WorkspaceMemberRes toWorkspaceMemberRes(WorkspaceMember workspaceMember) {

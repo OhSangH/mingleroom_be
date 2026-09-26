@@ -9,4 +9,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
     List<ChatMessage> older(@Param("roomId") Long roomId,@Param("before") Long before,Pageable pageable);
     @Query("select m from ChatMessage m join fetch m.user where m.room.id=:roomId and m.deletedAt is null and m.id>:after order by m.id asc")
     List<ChatMessage> newer(@Param("roomId") Long roomId,@Param("after") Long after,Pageable pageable);
+    @Query("select m from ChatMessage m join fetch m.user where m.room.id=:roomId and m.deletedAt is null and (:before is null or m.id<:before) and locate(lower(:q),lower(m.content))>0 order by m.id desc")
+    List<ChatMessage> search(@Param("roomId") Long roomId,@Param("q") String q,@Param("before") Long before,Pageable pageable);
 }

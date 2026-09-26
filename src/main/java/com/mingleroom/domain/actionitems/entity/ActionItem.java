@@ -57,4 +57,14 @@ public class ActionItem extends BaseTimeEntity {
 
     @Column(name = "done_at")
     private OffsetDateTime doneAt;
+    @Column(nullable=false)
+    @Builder.Default
+    private Integer revision = 1;
+    public void revise(String title, String description, User assignee, LocalDate dueDate, ActionStatus status) {
+        this.title=title; this.description=description; this.assignee=assignee; this.dueDate=dueDate;
+        if(this.status!=status) this.doneAt=status==ActionStatus.DONE?OffsetDateTime.now():null;
+        this.status=status; this.revision++; this.updatedAt=OffsetDateTime.now();
+    }
+    @PrePersist private void initializeTimes(){createdAt=OffsetDateTime.now();updatedAt=createdAt;}
+
 }

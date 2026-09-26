@@ -94,7 +94,7 @@ public class WorkspaceService {
         Long reqUserId = reqUser.getId();
         Long OwnerId = ws.getOwner().getId();
 
-        if (!reqUserId.equals(OwnerId) && reqUser.getRole().equals("ROLE_USER")) {
+        if (!reqUserId.equals(OwnerId) && !"ADMIN".equals(reqUser.getRole())) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "USER_NOT_MATCHED");
         }
 

@@ -14,6 +14,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig  implements WebSocketMessageBrokerConfigurer {
     private final StompAuthenticationInterceptor authenticationInterceptor;
+    private final com.mingleroom.security.ws.RoomOutboundGuard outboundGuard;
+    @Override public void configureClientOutboundChannel(ChannelRegistration registration){registration.interceptors(outboundGuard);}
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {

@@ -4,4 +4,5 @@ import com.mingleroom.domain.actionitems.entity.ActionItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
+java.util.List<ActionItem> findByRoomIdOrderByIdDesc(Long roomId);
 }
