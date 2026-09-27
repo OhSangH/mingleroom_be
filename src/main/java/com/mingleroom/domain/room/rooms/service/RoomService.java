@@ -12,6 +12,7 @@ import com.mingleroom.domain.room.members.entity.RoomMemberId;
 import com.mingleroom.domain.room.members.repository.RoomMemberRepository;
 import com.mingleroom.domain.room.rooms.dto.RoomCreateReq;
 import com.mingleroom.domain.room.rooms.dto.RoomRes;
+import com.mingleroom.domain.room.rooms.dto.RoomUpdateReq;
 import com.mingleroom.domain.room.rooms.entity.Room;
 import com.mingleroom.domain.room.rooms.repository.RoomRepository;
 import com.mingleroom.domain.users.entity.User;
@@ -65,6 +66,8 @@ public class RoomService {
     }
 
     public RoomRes createRoom(String email, RoomCreateReq req) {
+        if(req.invitePolicy()!=InvitePolicy.LINK)throw new GlobalException(ErrorCode.BAD_REQUEST,"현재 방 생성은 링크 초대 방식만 지원합니다.");
+        if(req.visibility()==RoomVisibility.TEAM && req.workspaceId()==null)throw new GlobalException(ErrorCode.BAD_REQUEST,"팀 회의실에는 워크스페이스가 필요합니다.");
         User me = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
 
         Workspace ws = null;
@@ -76,7 +79,7 @@ public class RoomService {
         Room room = Room.builder()
                 .workspace(ws)
                 .host(me)
-                .title(req.title())
+                .title(req.title().trim())
                 .visibility(req.visibility())
                 .invitePolicy(req.invitePolicy())
                 .locked(false)
@@ -104,9 +107,28 @@ public class RoomService {
 
     }
 
+    public RoomRes updateRoom(Long roomId,Long userId,RoomUpdateReq req){
+        Room room=roomRepository.lockForBoard(roomId).orElseThrow(()->new GlobalException(ErrorCode.NOT_FOUND,"회의실을 찾을 수 없습니다."));
+        var member=roomMemberRepository.findByIdRoomIdAndIdUserId(roomId,userId)
+            .orElseThrow(()->new GlobalException(ErrorCode.FORBIDDEN,"호스트만 방 설정을 변경할 수 있습니다."));
+        if(member.getRoleInRoom()!=RoomRole.HOST)throw new GlobalException(ErrorCode.FORBIDDEN,"호스트만 방 설정을 변경할 수 있습니다.");
+        if(room.getEndedAt()!=null)throw new GlobalException(ErrorCode.CONFLICT,"종료된 회의실은 수정할 수 없습니다.");
+        if(!java.util.Objects.equals(room.getTitle(),req.expectedTitle())||room.getVisibility()!=req.expectedVisibility())
+            throw new GlobalException(ErrorCode.CONFLICT,"다른 화면에서 방 설정을 수정했습니다. 최신 설정을 불러온 뒤 다시 저장하세요.");
+        if((room.getVisibility()==RoomVisibility.TEAM)!=(req.visibility()==RoomVisibility.TEAM))
+            throw new GlobalException(ErrorCode.BAD_REQUEST,"팀 회의실의 공개 범위 전환은 지원하지 않습니다.");
+        String oldTitle=room.getTitle();RoomVisibility oldVisibility=room.getVisibility();
+        room.updateDetails(req.title().trim(),req.visibility());
+        var payload=objectMapper.createObjectNode();payload.put("action","ROOM_SETTINGS");
+        payload.put("oldTitle",oldTitle);payload.put("title",room.getTitle());
+        payload.put("oldVisibility",oldVisibility.name());payload.put("visibility",room.getVisibility().name());
+        saveEvent(room,member.getUser(),RoomEventType.REACTION,payload);
+        return new RoomRes(room.getId(),room.getTitle(),room.getVisibility());
+    }
+
     public void joinRoom(Long roomId, String myEmail){
         User user = userRepository.findByEmail(myEmail).orElseThrow(() -> new EntityNotFoundException("USER_NOT_FOUND"));
-        Room room  = roomRepository.lockForBoard(roomId).orElseThrow(() -> new EntityNotFoundException("ROOM_NOT_FOUND"));
+        Room room  = roomRepository.lockForBoard(roomId).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND,"회의실을 찾을 수 없습니다."));
 
         if(room.getEndedAt() != null){
             throw new GlobalException(ErrorCode.CONFLICT, "종료된 회의실입니다.");

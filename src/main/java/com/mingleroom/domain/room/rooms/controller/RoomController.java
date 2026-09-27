@@ -3,6 +3,7 @@ package com.mingleroom.domain.room.rooms.controller;
 import com.mingleroom.common.enums.ErrorCode;
 import com.mingleroom.domain.room.rooms.dto.RoomCreateReq;
 import com.mingleroom.domain.room.rooms.dto.RoomRes;
+import com.mingleroom.domain.room.rooms.dto.RoomUpdateReq;
 import com.mingleroom.domain.room.rooms.service.RoomService;
 import com.mingleroom.common.exception.GlobalException;
 import com.mingleroom.security.config.UserPrincipal;
@@ -32,6 +33,11 @@ public class RoomController {
     public ResponseEntity<RoomRes> getRoom(@PathVariable Long roomId,
                                          @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(roomService.getRoom(roomId, principal.getId()));
+    }
+
+    @PatchMapping("/{roomId}")
+    public RoomRes update(@PathVariable Long roomId,@AuthenticationPrincipal UserPrincipal principal,@Valid @RequestBody RoomUpdateReq req){
+        return roomService.updateRoom(roomId,principal.getId(),req);
     }
 
     @PostMapping("/create")
