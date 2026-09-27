@@ -60,4 +60,7 @@ public class Room extends BaseTimeEntity {
     public void setLocked(boolean locked){this.locked=locked;}
     public void end(){this.endedAt=OffsetDateTime.now();this.locked=true;}
 
+    public void updateDetails(String title, RoomVisibility visibility){
+        this.title=title;this.visibility=visibility;
+    }
 }
