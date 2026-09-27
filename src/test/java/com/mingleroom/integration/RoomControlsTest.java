@@ -35,4 +35,24 @@ class RoomControlsTest {
  @Test void inviteStoresHashNotRawToken(){var out=service.invite(1L,7L,new RoomControls.InviteEdit(24,1));assertEquals(43,out.token().length());verify(invites).save(argThat(i->i.getToken().equals(RoomControls.hash(out.token()))&&!i.getToken().equals(out.token())));}
  @Test void handRaisingDoesNotChangeOtherMember(){service.hand(1L,8L,true);assertTrue(om.isHandRaised());assertFalse(hm.isHandRaised());}
  @Test void endLocksAndEndsRoom(){service.end(1L,7L);assertNotNull(room.getEndedAt());assertTrue(room.isLocked());}
+ @Test void privateRoomAcceptsItsIssuedInviteForNewMember(){
+  var privateRoom=Room.builder().id(1L).visibility(RoomVisibility.PRIVATE).invitePolicy(InvitePolicy.LINK).locked(false).build();
+  when(rooms.lockForBoard(1L)).thenReturn(Optional.of(privateRoom));
+  var invitation=RoomInvite.builder().room(privateRoom).inviteType(InviteType.LINK).expiresAt(OffsetDateTime.now().plusHours(1)).maxUses(1).usedCount(0).revoked(false).build();
+  when(invites.findByToken(RoomControls.hash("actual-raw-token"))).thenReturn(Optional.of(invitation));
+  service.redeem(1L,8L,"actual-raw-token");
+  verify(members).save(argThat(m->m.getId().equals(new RoomMemberId(1L,8L))&&m.getRoom()==privateRoom&&m.getUser()==other&&m.getRoleInRoom()==RoomRole.MEMBER));
+  assertEquals(1,invitation.getUsedCount());verify(events).save(any());
+ }
+ @Test void anotherRoomsTokenNeverCreatesMembership(){
+  var invitation=RoomInvite.builder().room(Room.builder().id(2L).build()).inviteType(InviteType.LINK).expiresAt(OffsetDateTime.now().plusHours(1)).maxUses(1).usedCount(0).build();
+  when(invites.findByToken(RoomControls.hash("wrong-room"))).thenReturn(Optional.of(invitation));
+  assertThrows(GlobalException.class,()->service.redeem(1L,8L,"wrong-room"));verify(members,never()).save(any());assertEquals(0,invitation.getUsedCount());
+ }
+ @Test void rejectionExplainsWhetherInviteExpiredRevokedOrExhausted(){
+  var cases=List.of(invitation(OffsetDateTime.now().minusHours(1),0,1,false),invitation(OffsetDateTime.now().plusHours(1),0,1,true),invitation(OffsetDateTime.now().plusHours(1),1,1,false));
+  var expected=List.of("유효 시간이 지났습니다","폐기한 초대","인원을 모두 사용");
+  for(int n=0;n<cases.size();n++){when(invites.findByToken(RoomControls.hash("raw"))).thenReturn(Optional.of(cases.get(n)));assertTrue(assertThrows(GlobalException.class,()->service.redeem(1L,8L,"raw")).getMessage().contains(expected.get(n)));}
+  verify(members,never()).save(any());
+ }
 }

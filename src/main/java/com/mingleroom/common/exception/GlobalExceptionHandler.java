@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.FieldError;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -58,6 +60,8 @@ public class GlobalExceptionHandler {
     // 3) 그 외 모든 예외 (마지막 안전망)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorRes> handleAny(Exception e, HttpServletRequest req) {
+        // Do not log request bodies, query strings, Authorization or invitation tokens.
+        log.error("Request failed: {} {}", req.getMethod(), req.getRequestURI(), e);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
         var body = ErrorRes.of(
